@@ -1,72 +1,98 @@
-require 'rexml/document'
-require 'yatvdb/episode'
+require 'yatvdb/caching'
+require 'yatvdb/parsing'
+require 'date'
 
 module YATVDB
   class Series
-    include YATVDB
+    include YATVDB::Caching
+    include YATVDB::Parsing
 
-    @@attributes = {
-      "actors" => :actors,
-      "airs_dayofweek" => :air_dow,
-      "airs_time" => :air_time,
-      "contentrating" => :content_rating,
-      "firstaired" => :first_aired,
-      "genre" => :genre,
-      "id" => :id,
-      "imdb_id" => :imdb_id,
-      "language" => :language,
-      "network" => :network,
-      "networkid" => :network_id,
-      "overview" => :overview,
-      "rating" => :rating,
-      "ratingcount" => :rating_count,
-      "runtime" => :runtime,
-      "seriesid" => :series_id,
-      "seriesname" => :name,
-      "status" => :status,
-      "added" => :added,
-      "addedby" => :added_by,
-      "banner" => :banner,
-      "fanart" => :fanart,
-      "lastupdated" => :last_updated,
-      "poster" => :poster,
-      "zap2it_id" => :zap2it_id
+    @@attr_map = {
+      airs_dayofweek: :air_day,
+      airs_time: :air_time,
+      contentrating: :content_rating,
+      firstaired: :first_aired,
+      genre: :genres,
+      networkid: :network_id,
+      ratingcount: :rating_count,
+      seriesid: :series_id,
+      seriesname: :name,
+      addedby: :added_by,
+      last_updated: :lastupdated
     }
 
-    attr_accessor *@@attributes.values
-    attr_accessor :episodes
+    attr_reader :id, :actors, :genres, :name, :overview, :first_aired, :network,
+      :imdb_id, :zap2it_id, :series_id, :language, :air_day, :air_time,
+      :content_rating, :network_id, :rating, :rating_count, :runtime, :status,
+      :added, :added_by, :banner, :fanart, :last_updated, :poster
 
-    def self.load(source)
-      doc = REXML::Document.new(source)
-      series = new
-      doc.elements.each("Data/Series/*") do |element|
-        series.send("#{@@attributes.fetch(element.name.downcase)}=", element.text)
+    %i[banner poster fanart].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        "#{base_uri}/#{instance_variable_get(ivar)}" if instance_variable_defined?(ivar)
       end
-      doc.elements.each("Data/Episode") do |element|
-        series.episodes << Episode.load(element)
+    end
+
+    %i[first_aired].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        DateTime.parse(instance_variable_get(ivar)) if instance_variable_defined?(ivar)
       end
-      series
     end
 
-    def actors
-      @actors.split('|').map(&:strip).compact.reject(&:empty?)
+    %i[id].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        Integer(instance_variable_get(ivar)) if instance_variable_defined?(ivar)
+      end
     end
 
-    def genres
-      @genre.split('|').map(&:strip).compact.reject(&:empty?)
+    %i[actors genres].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        instance_variable_get(ivar).split('|').map(&:strip).compact if instance_variable_defined?(ivar)
+      end
     end
 
-    def banner
-      "#{base_uri}/#{@banner}"
+    def episodes
+      @episodes
     end
 
-    def fanart
-      "#{base_uri}/#{@fanart}"
+    def seasons
+      return @seasons if @seasons
+      seasons = {}
+      @episodes.each do |episode|
+        seasons[episode.season_number] ||= []
+        seasons[episode.season_number] << episode
+      end
+      @seasons = seasons.keys.sort.map do |n|
+        seasons[n].sort_by(&:number)
+      end
     end
 
-    def poster
-      "#{base_uri}/#{@poster}"
+    def initialize(xml)
+      load!(xml)
     end
 
+    def self.load(xml)
+      new.load!(xml)
+    end
+
+    def load!(xml)
+      xml = xml.read if xml.respond_to?(:read)
+      xml = REXML::Document.new(xml) if xml.is_a?(String)
+      (xml.elements['Data/Series'] || xml.elements['Series'] || xml).elements.each do |element|
+        next unless element.text
+        next if element.text.empty?
+        ivar = element.name.downcase.to_sym
+        ivar = @@attr_map[ivar] if @@attr_map.key?(ivar)
+        ivar = :"@#{ivar}"
+        instance_variable_set(ivar, element.text.strip)
+      end
+      @episodes = []
+      xml.elements.each('Data/Episode') do |element|
+        @episodes << Episode.new(element)
+      end
+    end
   end
 end

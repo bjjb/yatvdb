@@ -1,18 +1,12 @@
 require "yatvdb/version"
-require "pathname"
-require "tmpdir"
-require "yaml"
-require 'open-uri'
-require 'nokogiri'
-require 'yatvdb/series'
 
 # Yet Another TheTVDB.com API client.
 module YATVDB
-  def initialize(attributes = {})
-    @episodes = []
-    attributes.each do |k, v|
-      send(@@attributes.fetch(k), v)
-    end
+  require 'yatvdb/series'
+  require 'yatvdb/episode'
+
+  def self.included(mod)
+    mod.send(:extend, ClassMethods)
   end
 
   def merge!(another)
@@ -43,14 +37,6 @@ module YATVDB
     return merge!(self.class.load(cache.read))
   end
 
-  def cached?
-    cache.exist?
-  end
-  
-  def cache
-    cache_path.join("#{self.class.name.split('::').last.downcase}/#{id}/all/#{language}.xml")
-  end
-
   def remote
     remote_path.join("#{self.class.name.split('::').last.downcase}/#{id}/all/#{language}.xml")
   end
@@ -74,14 +60,6 @@ module YATVDB
     config['tvdb']['uri'] || "http://thetvdb.com/api"
   end
 
-  # Where to store XML files from TVDB
-  def cache_path
-    @@cache_path ||= Pathname.new(ENV['YATVDB_PATH'] ||
-      ENV['TVDB_PATH'] ||
-      config['tvdb']['cache'] ||
-      Dir.mktmpdir)
-  end
-
   def cache_path=(path)
     @@cache_path = Pathname.new(path).expand_path.tap(&:mkpath)
   end
@@ -94,11 +72,6 @@ module YATVDB
   # Sets the language used by default
   def default_language=(language)
     @@default_language = language
-  end
-
-  # Configuration.
-  def config
-    @@config ||= load_config
   end
 
   # Load the user or system config file

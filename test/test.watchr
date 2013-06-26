@@ -1,5 +1,5 @@
 #!/usr/bin/env watchr
-watch('^test/.*_test\.rb') { |m| ruby m[0] }
+watch('^test/(.*)_test\.rb') { |m| ruby m[0] }
 watch('^lib/(.*)\.rb') { |m| ruby "test/#{m[1]}_test.rb" }
 watch('^test/test_helper\.rb') { ruby Dir['test/**/*_test.rb'] }
 
