@@ -59,6 +59,7 @@ check for updates on the server, and just delete outdated cache files).
 
 ## Caveats/TODOs
 
+* [ ] Finish Episode testing
 * [ ] Make the XML parsing pluggable ([REXML][rexml], [Nokogiri][nokogiri])
 * [ ] See about always getting the zipped files
 * [ ] Export to JSON/Ruby
