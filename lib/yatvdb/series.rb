@@ -1,12 +1,8 @@
-require 'yatvdb/caching'
-require 'yatvdb/parsing'
 require 'date'
+require 'rexml/document'
 
 module YATVDB
   class Series
-    include YATVDB::Caching
-    include YATVDB::Parsing
-
     @@attr_map = {
       airs_dayofweek: :air_day,
       airs_time: :air_time,
