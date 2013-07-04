@@ -16,11 +16,11 @@ describe YATVDB::Caching do
     Struct.new(:config, :language, :id) do
       include YATVDB::Caching
       def self.name() 'Dummy' end
-    end.new({'cache' => @tmpdir}, 'fr', 123)
+    end.new({'cache' => Pathname.new(@tmpdir)}, 'fr', 123)
   end
 
   it "knows where to cache things" do
-    subject.cache_path.to_s.must_equal @tmpdir
+    subject.cache_dir.to_s.must_equal @tmpdir
   end
 
   it "knows where to cache itself" do

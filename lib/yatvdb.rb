@@ -1,9 +1,14 @@
-require "yatvdb/version"
+require 'yaml'
+require 'open-uri'
+require 'rexml/document'
+require 'yatvdb/version'
+require 'yatvdb/series'
+require 'yatvdb/episode'
+require 'yatvdb/configuration'
+require 'yatvdb/caching'
 
 # Yet Another TheTVDB.com API client.
 module YATVDB
-  require 'yatvdb/series'
-  require 'yatvdb/episode'
 
   def self.included(mod)
     mod.send(:extend, ClassMethods)
@@ -46,7 +51,7 @@ module YATVDB
   def api_key
     @@api_key ||= ENV['YATVDB_API_KEY'] ||
       ENV['TVDB_API_KEY'] ||
-      config['tvdb']['api_key'] ||
+      config['api_key'] ||
       raise("No TVDB API key! Specify YATVDB_API_KEY in the environment.")
   end
 
@@ -57,11 +62,11 @@ module YATVDB
 
   # The base URI for API calls
   def base_uri
-    config['tvdb']['uri'] || "http://thetvdb.com/api"
+    config['yatvdb']['uri'] || "http://thetvdb.com/api"
   end
 
-  def cache_path=(path)
-    @@cache_path = Pathname.new(path).expand_path.tap(&:mkpath)
+  def cache_dir=(path)
+    @@cache_dir = Pathname.new(path).expand_path.tap(&:mkpath)
   end
 
   # Gets the language used by default for calls
@@ -74,41 +79,31 @@ module YATVDB
     @@default_language = language
   end
 
-  # Load the user or system config file
-  def load_config
-    config = {
-      'tvdb' => {
-        'cache' => '~/.yatvdb'
-      }
-    }
-    [
-      '/etc/yatvdb.conf',
-      '/usr/local/etc/yatvdb.conf',
-      '~/.yatvdb/config'
-    ].each do |f|
-      path = Pathname.new(f).expand_path
-      config.update(YAML.load(path.read)) if path.exist?
-    end
-    config
-  end
-
   # Search for a series by name. Returns only basic info for a series - use the
   # series' series_id's to fetch the full data, if you need it.
   #
-  #     YATVDB.get_series('Justified')
+  #     YATVDB.find_series('Justified')
   #     # => [<YATVDB::Series @name='Justified' @series_id=134241 ...>]
   #     series.first.load!
   #     # => <YATVDB::Series @name='Justified' ...full series data...>
   #     series.number_of_seasons # => 4
   #     series.episodes
   #     # => [<YATVDB::Episode @number=1 ...>, ...]
-  def get_series(name, language = default_language, fetch_all = false)
+  def find_series(name, language = default_language)
     name = URI.escape(name)
-    result = open("#{base_uri}/GetSeries.php?seriesname=#{name}&language=#{language}")
-    Nokogiri::XML(result.read).xpath('/Data/Series').map do |node|
-      Series.new(node)
+    xml = open("#{base_uri}/GetSeries.php?seriesname=#{name}&language=#{language}").read
+    series = []
+    REXML::Document.new(xml).elements.each('/Data/Series') do |node|
+      series << Series.new(node)
     end
+    series
+  end
+
+  def get(path)
+    open("#{base_uri}/#{api_key}/#{path}").read
   end
 
   extend self
+  extend Configuration
+  extend Caching
 end

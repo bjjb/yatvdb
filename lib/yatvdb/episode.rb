@@ -1,3 +1,4 @@
+require 'date'
 require 'rexml/document'
 
 module YATVDB
@@ -18,7 +19,8 @@ module YATVDB
       lastupdated: :last_updated,
       seasonid: :season_id,
       seriesid: :series_id,
-      seasonnumber: :season_number
+      seasonnumber: :season_number,
+      firstaired: :first_aired
     }
 
     attr_reader :id, :dvd_chapter, :dvd_disc_id, :dvd_episode_number,
@@ -27,10 +29,38 @@ module YATVDB
       :writers, :absolute_number, :image, :last_updated, :season_id, :series_id,
       :season_number
 
-    %i[id].each do |m|
+    %i[id number season dvd_chapter dvd_season].each do |m|
       define_method m do
         ivar = :"@#{m}"
         Integer(instance_variable_get(ivar)) if instance_variable_defined?(ivar)
+      end
+    end
+
+    %i[rating dvd_episode_number].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        Float(instance_variable_get(ivar)) if instance_variable_defined?(ivar)
+      end
+    end
+
+    %i[guest_stars writers directors].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        instance_variable_get(ivar).split('|').map(&:strip).compact if instance_variable_defined?(ivar)
+      end
+    end
+
+    %i[first_aired].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        DateTime.parse(instance_variable_get(ivar)) if instance_variable_defined?(ivar)
+      end
+    end
+
+    %i[last_updated].each do |m|
+      define_method m do
+        ivar = :"@#{m}"
+        Time.at(Integer(instance_variable_get(ivar))) if instance_variable_defined?(ivar)
       end
     end
 
