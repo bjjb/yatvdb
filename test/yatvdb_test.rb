@@ -53,5 +53,8 @@ describe YATVDB do
     result = YATVDB.fetch_series("series/134241/all/en.xml")
     result.must_be_kind_of YATVDB::Series
     result.name.must_equal 'Justified'
+    result.episodes.must_be_kind_of Array
+    result.episodes.first.name.must_equal 'Fire in the Hole'
+    result.episodes.last.name.must_equal 'Ghosts'
   end
 end
