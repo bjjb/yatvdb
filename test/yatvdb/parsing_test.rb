@@ -1,6 +1,5 @@
 require 'test_helper'
-require 'yatvdb/parsing'
+require 'yatvdb/parse'
 
-describe YATVDB::Parsing do
-
+describe YATVDB::Parse do
 end

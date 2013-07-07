@@ -1,38 +1,41 @@
 require 'test_helper'
-require 'yatvdb/caching'
+require 'yatvdb/cache'
 require 'tmpdir'
 require 'fileutils'
 
-describe YATVDB::Caching do
-  before do
-    @tmpdir = Dir.mktmpdir
-  end
-
-  after do
-    FileUtils.rm_rf @tmpdir
-  end
+describe YATVDB::Cache do
+  before { @tmpdir = Dir.mktmpdir }
+  after { FileUtils.rm_rf @tmpdir }
 
   subject do
-    Struct.new(:config, :language, :id) do
-      include YATVDB::Caching
-      def self.name() 'Dummy' end
-    end.new({'cache' => Pathname.new(@tmpdir)}, 'fr', 123)
+    cache = Class.new do
+      include YATVDB::Cache
+    end.new
+    cache.cache_path = @tmpdir
+    cache.cache_ttl = "1000"
+    cache
   end
 
-  it "knows where to cache things" do
-    subject.cache_dir.to_s.must_equal @tmpdir
+  it "will has a configurable cache_path" do
+    subject.must_respond_to :"cache_path="
+    subject.must_respond_to :"cache_path"
+    subject.cache_path.must_equal Pathname.new(@tmpdir)
   end
 
-  it "knows where to cache itself" do
-    subject.cache.to_s.must_equal "#{@tmpdir}/dummy/123/all/fr.xml"
+  it "will has a configurable cache_ttl" do
+    subject.must_respond_to :"cache_ttl="
+    subject.must_respond_to :"cache_ttl"
+    subject.cache_ttl.must_equal 1000
   end
 
-  it "knows when its cached" do
-    subject.wont_be :cached?
-    FileUtils.mkpath("#{@tmpdir}/dummy/123/all")
-    File.open("#{@tmpdir}/dummy/123/all/fr.xml", 'w') do |f|
-      f.puts "Hello"
-    end
-    subject.must_be :cached?
+  it "can cache things" do
+    subject.must_respond_to :cache
+  end
+
+  it "caches things" do
+    subject.cache('a/b') { "Hello" }.must_equal "Hello"
+    subject.cache_path.join('a/b').must_be :exist?
+    subject.cache_path.join('a/b').read.must_equal "Hello"
+    subject.cache('a/b') { "Goodbye" }.must_equal "Hello"
   end
 end

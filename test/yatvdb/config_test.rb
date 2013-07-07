@@ -1,12 +1,12 @@
 require 'test_helper'
 require 'yatvdb/config'
-require 'tmpfile'
+require 'tempfile'
 
 describe YATVDB::Config do
   before do
-    @dummy = Tempfile.new('dummy')
-    @dummy.puts { "" => "", "" => { "" => "", "" => "" } }.to_yaml
-    @dummy.clode
+    @dummy = Tempfile.new('config_test')
+    @dummy << { 'api_key' => 'TEST_API_KEY' }.to_yaml
+    @dummy.rewind
   end
 
   after do
@@ -14,27 +14,22 @@ describe YATVDB::Config do
   end
 
   let :configurable do
-    Class.new { include YATVDB::Config }.config.must_be_kind_of YATVDB::Configuration
+    Struct.new(:config_paths) { include YATVDB::Config }.new([@dummy.path])
   end
 
-  describe "a configurable object" do
-    it "has a config" do
-      configurable.config.must_be_kind_of YATVDB::Configuration
-    end
+  it "has the right config paths" do
+    configurable.config_paths.must_equal [@dummy.path]
   end
 
-  describe "a config" do
-    let :config do
-      configurable.config
-    end
+  it "has an API key" do
+    configurable.config.wont_be_nil
+    configurable.api_key.wont_be_nil
+    configurable.api_key.must_equal "TEST_API_KEY"
+  end
 
-    it "has an API key" do
-      config.api_key.must_equal "TEST_API_KEY"
-    end
-
-    it "has a cache" do
-      config.cache_path.must_be_kind_of Pathname.new('/test/cache/path')
-      config.cache_ttl.must_equal 99
-    end
+  it "has a cache path" do
+    configurable.config.wont_be_nil
+    configurable.cache_path.wont_be_nil
+    configurable.cache_path.must_equal Pathname.new('~/.yatvdb').expand_path
   end
 end

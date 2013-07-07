@@ -1,6 +1,10 @@
 require 'rexml/document'
 
 module YATVDB
-  module Parsing
+  module Parse
+    def parse(xml)
+      results = []
+      results
+    end
   end
 end

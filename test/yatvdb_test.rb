@@ -6,7 +6,7 @@ describe YATVDB do
   before do
     @tmpdir = Dir.mktmpdir("yatvdb_test")
 
-    YATVDB.cache_dir = @tmpdir
+    YATVDB.cache_path = Pathname.new(@tmpdir)
     YATVDB.api_key = "FOOBAR"
 
     FakeWeb.register_uri(:get,
@@ -24,6 +24,10 @@ describe YATVDB do
     FileUtils.rm_r(@tmpdir)
   end
 
+  it "has an api key" do
+    YATVDB.api_key.wont_be_nil
+  end
+
   it "can find a TV series" do
     results = YATVDB.find_series "Justified"
     series = results.first
@@ -34,7 +38,7 @@ describe YATVDB do
     YATVDB.cache_path.join('series/134241/en.xml').wont_be :exist?
     series = YATVDB.get('series/134241/en.xml')
     YATVDB.cache_path.join('series/134241/en.xml').must_be :exist?
-    # will complain if not cached
+    # FakeWeb will complain if not cached
     series = YATVDB.get('series/134241/en.xml')
   end
 end

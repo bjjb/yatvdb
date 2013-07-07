@@ -1,5 +1,6 @@
 require 'date'
 require 'rexml/document'
+require 'yatvdb/episode'
 
 module YATVDB
   class Series
