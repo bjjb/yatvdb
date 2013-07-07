@@ -1,5 +1,6 @@
 require 'date'
 require 'rexml/document'
+require 'yatvdb/episode'
 
 module YATVDB
   class Series
@@ -51,9 +52,9 @@ module YATVDB
     end
 
     def episodes
-      @episodes
+      @episodes ||= []
     end
-
+    
     def seasons
       return @seasons if @seasons
       seasons = {}
