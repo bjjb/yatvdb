@@ -52,9 +52,9 @@ module YATVDB
     end
 
     def episodes
-      @episodes
+      @episodes ||= []
     end
-
+    
     def seasons
       return @seasons if @seasons
       seasons = {}

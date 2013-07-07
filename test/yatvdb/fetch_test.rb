@@ -12,13 +12,26 @@ describe YATVDB::Fetch do
 
   before do
     @tempdir = Dir.mktmpdir('fetch_test')
+    @xml = <<-XML
+      <Data>
+        <Series>
+          <seriesname>Boo</seriesname>
+        </Series>
+        <Episode>
+          <episodename>Foo</episodename>
+        </Episode>
+        <Episode>
+          <episodename>Bar</episodename>
+        </Episode>
+      </Data>
+    XML
 
     subject.api_key = 'API_KEY'
     subject.cache_path = @tempdir
     FakeWeb.register_uri(
       :get,
       "http://thetvdb.com/api/API_KEY/series/123/en.xml",
-      body: "Blah blah"
+      body: @xml
     )
   end
 
@@ -31,7 +44,7 @@ describe YATVDB::Fetch do
   end
 
   it "can get a record" do
-    subject.fetch('series/123/en.xml').must_equal 'Blah blah'
+    subject.fetch('series/123/en.xml').must_equal @xml
     Pathname.new(@tempdir).join("series/123/en.xml").must_be :exist?
   end
 
@@ -43,4 +56,10 @@ describe YATVDB::Fetch do
     subject.fetch("series/999/en.xml").must_equal("Bang!")
   end
 
+  it "can fetch a series" do
+    result = subject.fetch_series("series/123/en.xml")
+    result.must_be_kind_of YATVDB::Series
+    result.episodes.first.name.must_equal "Foo"
+    result.episodes.last.name.must_equal "Bar"
+  end
 end
