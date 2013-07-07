@@ -16,7 +16,7 @@ module YATVDB
     end
 
     # Gets stuff from the cache or from TheTVDB.
-    def get(path)
+    def fetch(path)
       cache(path) do
         open("#{base_uri}/#{api_key}/#{path}").read
       end

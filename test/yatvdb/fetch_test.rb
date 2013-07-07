@@ -31,7 +31,7 @@ describe YATVDB::Fetch do
   end
 
   it "can get a record" do
-    subject.get('series/123/en.xml').must_equal 'Blah blah'
+    subject.fetch('series/123/en.xml').must_equal 'Blah blah'
     Pathname.new(@tempdir).join("series/123/en.xml").must_be :exist?
   end
 
@@ -40,7 +40,7 @@ describe YATVDB::Fetch do
     Pathname.new(@tempdir).join("series/999/en.xml").open('w') do |f|
       f.print "Bang!"
     end
-    subject.get("series/999/en.xml").must_equal("Bang!")
+    subject.fetch("series/999/en.xml").must_equal("Bang!")
   end
 
 end

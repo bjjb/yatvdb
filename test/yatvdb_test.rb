@@ -36,9 +36,9 @@ describe YATVDB do
 
   it "can fetch and cache a TV series" do
     YATVDB.cache_path.join('series/134241/en.xml').wont_be :exist?
-    series = YATVDB.get('series/134241/en.xml')
+    series = YATVDB.fetch('series/134241/en.xml')
     YATVDB.cache_path.join('series/134241/en.xml').must_be :exist?
     # FakeWeb will complain if not cached
-    series = YATVDB.get('series/134241/en.xml')
+    series = YATVDB.fetch('series/134241/en.xml')
   end
 end

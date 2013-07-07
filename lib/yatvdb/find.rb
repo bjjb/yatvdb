@@ -1,5 +1,11 @@
+require 'rexml/document'
+require 'yatvdb/fetch'
+require 'yatvdb/series'
+
 module YATVDB
   module Find
+    include Fetch
+
     # Search for a series by name. Returns only basic info for a series - use the
     # series' series_id's to fetch the full data, if you need it.
     #
