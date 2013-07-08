@@ -1,7 +1,43 @@
 require_relative "../test_helper"
+require 'tmpdir'
 require 'yatvdb/series'
 
 describe YATVDB::Series do
+  describe "partial series data" do
+    before do
+      @tmpdir = Dir.mktmpdir
+      YATVDB.api_key = 'FOOBAR'
+      YATVDB.cache_path = @tmpdir
+      FakeWeb.register_uri(
+        :get,
+        'http://thetvdb.com/api/3862D4352AF0A28A/series/134241/all/en.xml',
+        body: Pathname.new(__FILE__).join('../../fixtures/series/134241/all/en.xml').expand_path.read,
+        status: 200
+      )
+    end
+
+    after do
+      FileUtils.rm_r @tmpdir
+    end
+
+    let :series do
+      YATVDB::Series.new('<Data><Series><id>134241</id><language>en</language></Series></Data>')
+    end
+
+    it "is a series" do
+      series.must_be_kind_of YATVDB::Series
+      series.id.must_equal 134241
+    end
+
+    it "starts with no @episodes" do
+      series.instance_variable_get('@episodes').must_be_nil
+    end
+
+    it "loads episodes on demand" do
+      series.episodes.must_be_kind_of Array
+    end
+  end
+
   describe "full series data" do
     let :series do
       YATVDB::Series.new(File.read(File.expand_path("../../fixtures/series/134241/all/en.xml", __FILE__)))

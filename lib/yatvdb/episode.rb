@@ -1,8 +1,10 @@
 require 'date'
-require 'rexml/document'
+require 'yatvdb'
 
 module YATVDB
   class Episode
+    include YATVDB
+
     @@attr_map = {
       dvd_discid: :dvd_disc_id,
       dvd_episodenumber: :dvd_episode_number,

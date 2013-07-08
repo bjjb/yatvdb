@@ -4,6 +4,8 @@ require 'yatvdb/episode'
 
 module YATVDB
   class Series
+    include YATVDB
+
     @@attr_map = {
       airs_dayofweek: :air_day,
       airs_time: :air_time,
@@ -51,8 +53,26 @@ module YATVDB
       end
     end
 
+    def merge!(another)
+      another.instance_variables.each do |ivar|
+        instance_variable_set(ivar, another.instance_variable_get(ivar))
+      end
+      self
+    end
+
+    def merge(another)
+      dup.merge!(another)
+    end
+
     def episodes
-      @episodes ||= []
+      @episodes ||= fetch_episodes
+    end
+
+    def fetch_episodes
+      raise "#{self} has no ID" unless id
+      raise "#{self} has no language" unless language
+      merge! fetch_series(id)
+      @episodes
     end
     
     def seasons
@@ -86,8 +106,8 @@ module YATVDB
         ivar = :"@#{ivar}"
         instance_variable_set(ivar, element.text.strip)
       end
-      @episodes = []
       xml.elements.each('Data/Episode') do |element|
+        @episodes ||= []
         @episodes << Episode.new(element)
       end
     end
