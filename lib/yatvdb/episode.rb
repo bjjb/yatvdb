@@ -25,7 +25,7 @@ module YATVDB
       firstaired: :first_aired
     }
 
-    attr_reader :id, :dvd_chapter, :dvd_disc_id, :dvd_episode_number,
+    attributes :id, :dvd_chapter, :dvd_disc_id, :dvd_episode_number,
       :dvd_season, :directors, :name, :number, :first_aired, :guest_stars,
       :imdb_id, :language, :overview, :production_code, :rating, :season,
       :writers, :absolute_number, :image, :last_updated, :season_id, :series_id,
@@ -66,8 +66,8 @@ module YATVDB
       end
     end
 
-    def initialize(doc)
-      load!(doc)
+    def initialize(xml = "")
+      load!(xml)
     end
 
     def load!(xml)

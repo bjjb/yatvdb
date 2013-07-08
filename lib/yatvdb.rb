@@ -1,11 +1,10 @@
 require 'open-uri'
 require 'pathname'
 require 'yaml'
+require 'json'
 require 'logger'
 require 'rexml/document'
 require 'yatvdb/version'
-require 'yatvdb/series'
-require 'yatvdb/episode'
 
 # Yet Another TheTVDB.com API client.
 module YATVDB
@@ -171,6 +170,38 @@ module YATVDB
     end
   end
 
+  # Gets the attributes for the class
+  def attributes
+    attributes = {}
+    self.class.attributes.each do |attr|
+      attributes[attr] = send(attr)
+    end
+    attributes
+  end
+
+  # Gets the object as JSON
+  def to_json
+    attributes.to_json
+  end
+
+  def self.included(mod)
+    mod.send(:extend, ClassMethods)
+  end
+
+  module ClassMethods
+    def attributes(*args)
+      args.each do |arg|
+        @attributes ||= []
+        @attributes << arg.to_sym
+        attr_reader arg
+      end
+      @attributes
+    end
+  end
+
   # You can use YATVDB directly, or you can mix it into a client or something
   extend self
 end
+
+require 'yatvdb/series'
+require 'yatvdb/episode'

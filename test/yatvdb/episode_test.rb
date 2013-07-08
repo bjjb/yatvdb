@@ -42,4 +42,29 @@ describe YATVDB::Episode do
       episode.last_updated.must_equal Time.at(1367386515)
     end
   end
+
+  describe "attributes" do
+    it "contains all the necessary attributes" do
+      YATVDB::Episode.instance_variable_get('@attributes').must_include :id
+      YATVDB::Episode.attributes.must_include :id
+      YATVDB::Episode.attributes.must_include :writers
+    end
+
+    it "can give us all attributes" do
+      episode = YATVDB::Episode.new('<id>123</id>')
+      episode.must_respond_to :attributes
+      episode.attributes.must_be_kind_of Hash
+      episode.attributes[:id].must_equal 123
+    end
+  end
+
+  describe "to_json" do
+    it "contains all attributes" do
+      episode = YATVDB::Episode.new('<id>123</id>')
+      json = episode.to_json
+      json.must_be_kind_of String
+      hash = JSON.parse(json)
+      hash['id'].must_equal 123
+    end
+  end
 end

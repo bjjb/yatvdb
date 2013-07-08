@@ -20,7 +20,7 @@ module YATVDB
       last_updated: :lastupdated
     }
 
-    attr_reader :id, :actors, :genres, :name, :overview, :first_aired, :network,
+    attributes :id, :actors, :genres, :name, :overview, :first_aired, :network,
       :imdb_id, :zap2it_id, :series_id, :language, :air_day, :air_time,
       :content_rating, :network_id, :rating, :rating_count, :runtime, :status,
       :added, :added_by, :banner, :fanart, :last_updated, :poster
@@ -87,7 +87,7 @@ module YATVDB
       end
     end
 
-    def initialize(xml)
+    def initialize(xml = "")
       load!(xml)
     end
 
@@ -111,5 +111,6 @@ module YATVDB
         @episodes << Episode.new(element)
       end
     end
+
   end
 end

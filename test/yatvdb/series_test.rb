@@ -89,4 +89,29 @@ describe YATVDB::Series do
       series.seasons.size.must_equal 4
     end
   end
+
+  describe "attributes" do
+    it "contains all the necessary attributes" do
+      YATVDB::Series.instance_variable_get('@attributes').must_include :id
+      YATVDB::Series.attributes.must_include :id
+      YATVDB::Series.attributes.must_include :banner
+    end
+
+    it "can give us all attributes" do
+      series = YATVDB::Series.new('<id>123</id>')
+      series.must_respond_to :attributes
+      series.attributes.must_be_kind_of Hash
+      series.attributes[:id].must_equal 123
+    end
+  end
+
+  describe "to_json" do
+    it "contains all attributes" do
+      series = YATVDB::Series.new('<id>123</id>')
+      json = series.to_json
+      json.must_be_kind_of String
+      hash = JSON.parse(json)
+      hash['id'].must_equal 123
+    end
+  end
 end
