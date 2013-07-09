@@ -3,40 +3,8 @@ require 'yatvdb'
 require 'tmpdir'
 
 describe YATVDB do
-  before do
-    @tmpdir = Dir.mktmpdir("yatvdb_test")
-
-    YATVDB.cache_path = Pathname.new(@tmpdir)
-    YATVDB.api_key = "FOOBAR"
-
-    FakeWeb.register_uri(
-      :get,
-      'http://thetvdb.com/api/GetSeries.php?seriesname=Justified&language=en',
-      body: File.read(File.expand_path("../fixtures/justified.xml", __FILE__)),
-      status: 200
-    )
-
-    FakeWeb.register_uri(
-      :get,
-      'http://thetvdb.com/api/FOOBAR/series/134241/en.xml',
-      body: File.read(File.expand_path("../fixtures/series/134241/en.xml", __FILE__)),
-      status: 200
-    )
-
-    FakeWeb.register_uri(
-      :get,
-      "http://thetvdb.com/api/FOOBAR/series/134241/all/en.xml",
-      body: Pathname.new(__FILE__).expand_path.join('../fixtures/series/134241/all/en.xml').read,
-      status: 200
-    )
-  end
-
-  after do
-    FileUtils.rm_r(@tmpdir)
-  end
-
   it "has an api key" do
-    YATVDB.api_key.wont_be_nil
+    YATVDB.api_key.must_equal 'FOOBAR'
   end
 
   it "can find a TV series" do

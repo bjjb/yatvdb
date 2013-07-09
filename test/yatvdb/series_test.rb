@@ -4,22 +4,6 @@ require 'yatvdb/series'
 
 describe YATVDB::Series do
   describe "partial series data" do
-    before do
-      @tmpdir = Dir.mktmpdir
-      YATVDB.api_key = 'FOOBAR'
-      YATVDB.cache_path = @tmpdir
-      FakeWeb.register_uri(
-        :get,
-        'http://thetvdb.com/api/3862D4352AF0A28A/series/134241/all/en.xml',
-        body: Pathname.new(__FILE__).join('../../fixtures/series/134241/all/en.xml').expand_path.read,
-        status: 200
-      )
-    end
-
-    after do
-      FileUtils.rm_r @tmpdir
-    end
-
     let :series do
       YATVDB::Series.new('<Data><Series><id>134241</id><language>en</language></Series></Data>')
     end
