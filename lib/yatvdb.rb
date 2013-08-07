@@ -131,7 +131,8 @@ module YATVDB
   # Gets stuff from the cache or from TheTVDB. Returns the raw result of the
   # file - it does no checking for the status code, or whatever.
   def fetch(path)
-    cache(path) { open("#{base_uri}/#{api_key}/#{path}").read }
+    uri = [base_uri, api_key, path].compact.join("/")
+    cache(path) { open(uri).read }
   end
 
   # Fetch a series from YATVDB. It will load up all the series info, and

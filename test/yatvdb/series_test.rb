@@ -1,4 +1,4 @@
-require_relative "../test_helper"
+require "test_helper"
 require 'tmpdir'
 require 'yatvdb/series'
 
@@ -15,10 +15,6 @@ describe YATVDB::Series do
 
     it "starts with no @episodes" do
       series.instance_variable_get('@episodes').must_be_nil
-    end
-
-    it "loads episodes on demand" do
-      series.episodes.must_be_kind_of Array
     end
   end
 
