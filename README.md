@@ -79,5 +79,5 @@ check for updates on the server, and just delete outdated cache files).
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-[rexml][http://www.germane-software.com/software/rexml/]
-[nokogiri][http://nokogiri.org/]
+[rexml]: http://www.germane-software.com/software/rexml/
+[nokogiri]: http://nokogiri.org/
