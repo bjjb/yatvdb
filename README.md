@@ -1,4 +1,4 @@
-# Yatvdb
+# YATVDB
 
 Yet another API client for TheTVDB. This one caches responses locally, and
 exposes a couple of classes to represent the data, if you don't like tearing
@@ -59,13 +59,12 @@ check for updates on the server, and just delete outdated cache files).
 
 ## Caveats/TODOs
 
-* [ ] Finish Episode testing
 * [ ] Make the XML parsing pluggable ([REXML][rexml], [Nokogiri][nokogiri])
 * [ ] See about always getting the zipped files
 * [ ] Export to JSON/Ruby
-* [ ] Basic fetch/output command-line interface
 * [ ] More tests and documentation
 
+[![Status](https://travis-ci.org/bjjb/yatvdb.png?branch=master)](https://travis-ci.org/bjjb/yatvdb)
 
 ## Contributing
 
