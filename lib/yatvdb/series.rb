@@ -78,7 +78,7 @@ module YATVDB
     def seasons
       return @seasons if @seasons
       seasons = {}
-      @episodes.each do |episode|
+      episodes.each do |episode|
         seasons[episode.season_number] ||= []
         seasons[episode.season_number] << episode
       end

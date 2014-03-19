@@ -8,6 +8,8 @@ require 'yatvdb/version'
 
 # Yet Another TheTVDB.com API client.
 module YATVDB
+  autoload :Series, "yatvdb/series"
+  autoload :Episode, "yatvdb/episode"
   # Cache the result of the block under the path given (usually
   # series/123/all/en.xml, or something similar), or skip the block and read the
   # result if the cached path exists and hasn't expired.
@@ -155,6 +157,7 @@ module YATVDB
     end
     results
   end
+  alias lookup find_series
 
   # A standard logger. Level is usually warn, but you can override that with
   # $VERBOSE or $DEBUG or with a config variable. Usually logs to STDOUT, but
@@ -181,8 +184,8 @@ module YATVDB
   end
 
   # Gets the object as JSON
-  def to_json
-    attributes.to_json
+  def to_json(*args)
+    attributes.to_json(*args)
   end
 
   def self.included(mod)
@@ -203,6 +206,3 @@ module YATVDB
   # You can use YATVDB directly, or you can mix it into a client or something
   extend self
 end
-
-require 'yatvdb/series'
-require 'yatvdb/episode'
