@@ -20,6 +20,11 @@ Or install it yourself as:
 
 ## Usage
 
+There's a basic command-line interface - just run `yatvdb -h` after you've
+installed it.
+
+To use it in your own project:
+
 ```ruby
 # Search for the TV series "Justified"
 require 'yatvdb/client'
